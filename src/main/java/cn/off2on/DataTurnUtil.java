@@ -19,6 +19,8 @@ import java.util.stream.Stream;
 import org.apache.commons.lang3.StringUtils;
 import org.junit.Test;
 
+import cn.field.FieldTurn;
+
 
 public class DataTurnUtil {
 	
@@ -54,7 +56,7 @@ public class DataTurnUtil {
 	/** L2数据多余项*/
 	public static List<String> lfList = new ArrayList<String>();
 	
-	 @FunctionalInterface
+	@FunctionalInterface
 		interface TriFunction<T, U, V, R> {
 			R apply (T t, U u, V v);
 	}
@@ -350,18 +352,7 @@ public class DataTurnUtil {
 			return re;
 		};
 	}
-
-    public static void main(String []args) {
-//        scannerMethod();
-//		String cfMapPath = "C:\\Users\\Administrator\\Desktop\\automap";
-//		String exportPath = "E:\\export";
-//		String sourcePath = "D:\\IDE\\eclipse-oxygen\\workspace2\\AppRepo\\adpt.GZ2.3\\testdata\\test_GDoff\\GDoff";
-		DataTurnUtil util = new DataTurnUtil();
-		util.scannerMethod();
-    }
-
-
-
+	
 	public void scannerMethod() {
 		Scanner input = new Scanner(System.in);
         System.out.println("请输入ls文件目录路径");
@@ -374,22 +365,24 @@ public class DataTurnUtil {
 	}
 
 
-
     @Test
     public void test () {
 //        String cfMapPath = "E:\\CF.MAP";
         String cfMapPath = "C:\\Users\\Administrator\\Desktop\\automap";
 //    	  String exportPath = "E:\\export";
-        String sourcePath = "D:\\IDE\\eclipse-oxygen\\workspace2\\AppRepo\\adpt.GZ2.3\\testdata\\test_GDoff\\GDoff";
+        String sourcePath = "E:\\GDoff";
         turnOff2OnMethod(sourcePath, "export", cfMapPath);
+        
+        FieldTurn fieldTurn = new FieldTurn();
+        String standardFilePath = "D:\\IDE\\eclipse-oxygen\\workspace2\\AppRepo\\adpt.GZ2.3\\testdata\\test_Demonstrate\\data";
+        fieldTurn.turnDiffLsFile("ST.S3", "export", standardFilePath);
+        System.exit(0);
     }
-
-
 
 	public void turnOff2OnMethod(String sourcePath, String exportPath, String cfMapPath) {
         mappingFilesToCach(cfMapPath);
         Stream<String> of = Stream.of( "LF.L2", "LF.L3", "LF.L5", "LF.L6", "LF.NL4", "ST.S2", "ST.S3", "ST.NS4", "ST.S5", "ST.S6");
-        System.out.println("转换开始...");
+        System.out.println("映射转换开始...");
         of.forEach(fileName -> {
 //			System.out.println(fileName);
 			readLs(sourcePath, fileName, exportPath );
@@ -399,8 +392,7 @@ public class DataTurnUtil {
 		} catch (IOException e) {
 			
 		}
-		System.out.println("转换完成！");
-		System.exit(0);
+		System.out.println("映射转换完成！");
 	}
     
     /**
@@ -501,15 +493,16 @@ public class DataTurnUtil {
 			sortList.sort((a, b) -> a.compareTo(b));
 			sortList.forEach(str -> fileStrBuffer.append(str+"\n"));
 			
-			File file = new File(newDir);
+			File file = new File(newDir + File.separator +"bak");
 			if (!file.exists()) {
 				file.mkdirs();
 			}
+			
 			lfList.sort((a, b) -> a.compareTo(b));
 			lfList.forEach(str -> subStrBuffer.append(str +"\n"));
 			
 			Files.write(Paths.get(newDir + File.separator +fileName),fileStrBuffer.toString().getBytes());
-			Files.write(Paths.get(newDir + File.separator +fileName+"bak"),subStrBuffer.toString().getBytes());
+			Files.write(Paths.get(newDir + File.separator +"bak" + File.separator +fileName+"bak"),subStrBuffer.toString().getBytes());
 			fileStrBuffer.setLength(0);
 			subStrBuffer.setLength(0);
 			lfList.clear();
@@ -583,9 +576,12 @@ public class DataTurnUtil {
 				}
 			}
 			if (arr[1].indexOf("(") != -1) {
-				off = arr[1].substring(0, arr[1].indexOf("(")).trim();
+				off = arr[1].substring(0, arr[1].lastIndexOf("(")).trim();
 			}
-//			System.out.println(on + "--" + off);
+			if (fileName.equals("dln.txt")) {
+//				System.out.println(on + "--" + off);
+			}
+//			
 			if (map.containsKey(off)) {
 //				System.err.println(fileName + "--" + off);
 			} else {
@@ -593,10 +589,10 @@ public class DataTurnUtil {
 			}
 		});
 		
-//		System.out.println(listTemp.size());
-//		System.out.println(map.size());
+		System.out.println(listTemp.size());
+		System.out.println(map.size());
 		String key = fileName.substring(0, fileName.indexOf("."));
 		cfMap.put(key, map);
+		
 	}
-    
 }
